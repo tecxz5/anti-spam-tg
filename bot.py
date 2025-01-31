@@ -37,11 +37,4 @@ def handle_message(message):
         mute_user(chat_id, user_id, duration)
         bot.send_message(chat_id, f"Пользователь {message.from_user.first_name} замучен на {duration // 60} минут(ы) за спам.")
 
-@bot.message_handler(commands=['start'])
-def handle_start(message):
-    if message.chat.type == 'private':
-        bot.send_message(message.chat.id, "Привет! Я антиспам бот. Я буду следить за спамом в группах.")
-    else:
-        return
-
 bot.infinity_polling()
