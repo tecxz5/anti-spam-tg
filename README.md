@@ -1,4 +1,4 @@
-<<div align="center">
+<div align="center">
   <h1>Простенький анти-спам</h1>
   <img src=.readme/video.gif>
 </div>
