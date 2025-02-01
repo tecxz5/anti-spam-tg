@@ -1,27 +1,39 @@
 import telebot
 from config import TOKEN
-from db import create_tables, add_message, get_recent_messages
 import time
+from collections import defaultdict, deque
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(TOKEN)
+user_messages = defaultdict(lambda: deque(maxlen=6))
 
 def mute_user(chat_id, user_id, duration):
     bot.restrict_chat_member(chat_id, user_id, until_date=int(time.time()) + duration, can_send_messages=False)
+    logger.info(f"User {user_id} has been muted in chat {chat_id} for {duration} seconds.")
 
-@bot.message_handler(content_types=['text', 'sticker', 'animation'])
+@bot.message_handler(content_types=['text', 'sticker', 'animation', 'dice'])
 def handle_message(message):
     user_id = message.from_user.id
     chat_id = message.chat.id
-    content = message.text if message.content_type == 'text' else message.content_type
+    current_time = time.time()
     
-    create_tables(chat_id)
-    add_message(chat_id, user_id, content)
+    # Логируем сообщение
+    logger.info(f"Received message from user {user_id} in chat {chat_id}: {message.text or message.content_type}")
     
-    recent_messages = get_recent_messages(chat_id, user_id)
+    # Добавляем сообщение в очередь
+    user_messages[(chat_id, user_id)].append(current_time)
     
-    if len(recent_messages) > 5 and all(msg[0] == content for msg in recent_messages):
+    # Проверяем на спам
+    recent_messages = user_messages[(chat_id, user_id)]
+    if len(recent_messages) == 6 and (current_time - recent_messages[0]) <= 3:
         mute_user(chat_id, user_id, 60)
         user_link = f'<a href="tg://user?id={user_id}">{message.from_user.first_name}</a>'
         bot.send_message(chat_id, f"Пользователь {user_link} замучен на минуту за спам.", parse_mode='HTML')
+        user_messages[(chat_id, user_id)].clear()  # Очищаем очередь сообщений пользователя
+        logger.info(f"User {user_id} has been muted for spamming in chat {chat_id}.")
 
 bot.infinity_polling()
