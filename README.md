@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Простенький анти-спам</h1>
-  <img src=.readme/video.gif>
+  <img src=https://github.com/tecxz5/tecxz5/blob/main/.files%20other%20readme/video.gif?raw=true>
 </div>
 <hr>
 <div align="center">
