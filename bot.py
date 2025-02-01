@@ -5,7 +5,7 @@ from collections import defaultdict, deque
 import logging
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='log.txt', encoding='utf-8')
 logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(TOKEN)
