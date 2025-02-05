@@ -23,10 +23,10 @@ def handle_message(message):
     content = message.text if message.content_type == 'text' else message.content_type
     logger.info(f"Received message from user {user_id} in chat {chat_id}: {content}")
     
-    user_messages[(chat_id, user_id)].append(content)
+    user_messages[(chat_id, user_id)].append(current_time)
     
     recent_messages = user_messages[(chat_id, user_id)]
-    if len(recent_messages) == 2 and (current_time - recent_messages[0]) <= 10:
+    if len(recent_messages) == 3 and (current_time - recent_messages[0]) <= 5:
         mute_user(chat_id, user_id, 60)
         user_link = f'<a href="tg://user?id={user_id}">{message.from_user.first_name}</a>'
         bot.send_message(chat_id, f"Пользователь {user_link} замучен на минуту за спам.", parse_mode='HTML')
