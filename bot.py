@@ -1,5 +1,5 @@
 import telebot
-from config import TOKEN
+from config import *
 import time
 from collections import defaultdict, deque
 import logging
@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(TOKEN)
-user_messages = defaultdict(lambda: deque(maxlen=3))
+user_messages = defaultdict(lambda: deque(maxlen=MSGS_LIMIT))
 
 def mute_user(chat_id, user_id, duration):
     bot.restrict_chat_member(chat_id, user_id, until_date=int(time.time()) + duration, can_send_messages=False)
@@ -26,10 +26,10 @@ def handle_message(message):
     user_messages[(chat_id, user_id)].append(current_time)
     
     recent_messages = user_messages[(chat_id, user_id)]
-    if len(recent_messages) == 3 and (current_time - recent_messages[0]) <= 8:
+    if len(recent_messages) == MSGS_LIMIT and (current_time - recent_messages[0]) <= SPAM_TIME:
         mute_user(chat_id, user_id, 60)
         user_link = f'<a href="tg://user?id={user_id}">{message.from_user.first_name}</a>'
-        bot.send_message(chat_id, f"Пользователь {user_link} замучен на минуту за спам.", parse_mode='HTML')
+        bot.send_message(chat_id, f"Пользователь {user_link} замучен на {MUTE_MSG} за спам.", parse_mode='HTML')
         user_messages[(chat_id, user_id)].clear()
         logger.info(f"User {user_id} has been muted for spamming in chat {chat_id}.")
 
