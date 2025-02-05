@@ -26,7 +26,7 @@ def handle_message(message):
     user_messages[(chat_id, user_id)].append(current_time)
     
     recent_messages = user_messages[(chat_id, user_id)]
-    if len(recent_messages) == 3 and (current_time - recent_messages[0]) <= 5:
+    if len(recent_messages) == 3 and (current_time - recent_messages[0]) <= 8:
         mute_user(chat_id, user_id, 60)
         user_link = f'<a href="tg://user?id={user_id}">{message.from_user.first_name}</a>'
         bot.send_message(chat_id, f"Пользователь {user_link} замучен на минуту за спам.", parse_mode='HTML')
