@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(TOKEN)
-user_messages = defaultdict(lambda: deque(maxlen=6))
+user_messages = defaultdict(lambda: deque(maxlen=3))
 
 def mute_user(chat_id, user_id, duration):
     bot.restrict_chat_member(chat_id, user_id, until_date=int(time.time()) + duration, can_send_messages=False)
@@ -23,7 +23,7 @@ def handle_message(message):
     content = message.text if message.content_type == 'text' else message.content_type
     logger.info(f"Received message from user {user_id} in chat {chat_id}: {content}")
     
-    user_messages[(chat_id, user_id)].append(current_time)
+    user_messages[(chat_id, user_id)].append(content)
     
     recent_messages = user_messages[(chat_id, user_id)]
     if len(recent_messages) == 3 and (current_time - recent_messages[0]) <= 5:
